@@ -11,5 +11,6 @@ public class Cross extends Global
 		ScreenStates myScreen=ScreenStates.PlayScreen;
 		//switch()
 	}
+	//comment fork test lol ahahahaa max loh ))))
 }
 
