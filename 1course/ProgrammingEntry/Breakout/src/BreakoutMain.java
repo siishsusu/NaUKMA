@@ -2,7 +2,7 @@
 /**
  * @author Maksym Loshak @author Vladyslava Rudas
  * 
- * @version 30.11.2022
+ * @version 04.12.2022
  * no recent changes 
  */
 /*
@@ -61,15 +61,30 @@ public class BreakoutMain extends GraphicsProgram {
 
 /** Offset of the top brick row from the top */
 	private static final int BRICK_Y_OFFSET = 70;
+	
+/** In-game movement delay */
+	private static final int DELAY = 10;
 
 /** Number of turns */
 	private static final int NTURNS = 3;
 	
-/** The item of GObject paddle (GRect) */
+/** An item of GObject paddle (GRect) */
 	private static GRect paddle;
 	
-/** The item of GObject ball (GOval) */
+/** An item of GObject ball (GOval) */
 	private static GOval ball;
+	
+/** An item of GObject the ball has collided with */
+	private static GObject collider;
+	
+/** The location of the brick due to the location of ball*/
+	private static String brickLocation;
+	
+/** The speed of the ball by X axis */
+	private static double vx;
+	
+/** The speed of the ball by Y axis */
+	private static int vy;
 	
 /** Random generating algorithm */
 	private static RandomGenerator rgen = RandomGenerator.getInstance();
@@ -77,12 +92,26 @@ public class BreakoutMain extends GraphicsProgram {
 /** Static color of the paddle */
 	private static final Color paddleColor = new Color(rgen.nextInt(1, 255), rgen.nextInt(1, 255), rgen.nextInt(1, 255));
 
+	private static enum ballDirection
+	{
+		RIGHT,
+		LEFT,
+		UP,
+		DOWN;
+	}
 /* Method: run() */
 /** Runs the BreakoutMain program. */
 	public void run() 
 	{
 		setup();
 		addMouseListeners();
+		while(true)
+		{
+			ballMovement();
+			collisionCheck();
+			pause(DELAY);
+		}
+		
 	}
 /**
  * Sets the size of the console
@@ -96,11 +125,16 @@ public class BreakoutMain extends GraphicsProgram {
 		bricks();
 		paddle=getPaddle();
 		ball=getBall();
+		ballSpeed();
+		ballDirection ballMovement = ballDirection.DOWN;
 		add(paddle, (WIDTH-PADDLE_WIDTH)/2, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
-		add(ball, (WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
+		add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
+		
 	}
 	
-	//*************************************************************************************
+	
+	
+	//---------------------------------------------------------------------------------------------------------
 	
 	
 	
@@ -156,7 +190,7 @@ public class BreakoutMain extends GraphicsProgram {
 	
 	
 	
-	//***************************************************************************************
+	//---------------------------------------------------------------------------------------------------------
 	
 	
 	
@@ -177,12 +211,127 @@ public class BreakoutMain extends GraphicsProgram {
 			add(paddle, 0, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
 	}
 	
+/**
+ * Determines the speed of the ball and sets them in the requested fields.
+ * @author Maksym Loshak
+ */
+	private void ballSpeed()
+	{
+		vx = rgen.nextDouble(1.0, 3.0); 
+		vy = 3;
+		if (rgen.nextBoolean(0.5)) vx = -vx;
+	}
+	
+/**
+ * Creates the ball movement with the set speed, prevents ball from leaving the
+ * in-game zone.
+ * @author Maksym Loshak
+ */
 	private void ballMovement()
 	{
-		
+		ball.move(vx, vy);
+		if(ball.getX()<=0 || ball.getX()>=WIDTH-BALL_RADIUS)
+			vx=-vx;
+		if(ball.getY()<=0 || ball.getY()>=HEIGHT-BALL_RADIUS)
+			vy=-vy;
+	}
+
+/** Finds the collider for a ball, returns null if there is no colision
+ * @author Maksym Loshak
+ * @return collider
+ */
+	private GObject getCollidedObjet()
+	{
+		GObject collObjLD = getElementAt(ball.getX(), ball.getY()+ball.getHeight()); 
+		if(collObjLD!=null)
+			return collObjLD;
+		GObject collObjRD = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+ball.getHeight());
+		if(collObjRD!=null)
+			return collObjRD;
+		GObject collObjLU = getElementAt(ball.getX(), ball.getY()); 
+		if(collObjLU!=null)
+			return collObjLU;
+		GObject collObjRU = getElementAt(ball.getX()+ball.getWidth(), ball.getY());
+		if(collObjRU!=null)
+			return collObjRU;
+		else
+			return null;
+	}
+	
+/** Checks where is the brick located for ball to bounce in the correct direction
+ * @author Maksym Loshak
+ * @return the side of the ball
+ */
+	private String brickLocation()
+	{
+		GObject collObjD = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()+ball.getHeight()+0.01);
+		GObject collObjU = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()-0.01);
+		GObject collObjR = getElementAt(ball.getX()+ball.getWidth()+0.01, ball.getY()+BALL_RADIUS);
+		GObject collObjL = getElementAt(ball.getX()-0.01, ball.getY()+BALL_RADIUS);
+		if(collObjD!=null)
+			return "DOWN";
+		if(collObjR!=null)
+			return "RIGHT";
+		if(collObjL!=null)
+			return "LEFT";
+		if(collObjU!=null)
+			return "UP";
+		else return null;
+	}
+	
+/** Checks for collisions, if the collider id a paddle, ball bounces back, if not
+ * the collider is removed from the in-game and the ball finds the direction in which it 
+ * bounces with method brickLocation();
+ * @author Maksym Loshak
+ */
+	private void collisionCheck()
+	{
+		collider=getCollidedObjet();
+		brickLocation=brickLocation();
+		if(collider!=null)
+		{
+			if(collider==paddle)
+				vy=-vy;
+			else
+			{
+				remove(collider);
+				collider=null;
+				if(brickLocation!=null)
+				{
+					if(brickLocation.equals("UP")||brickLocation.equals("DOWN"))
+						vy=-vy;
+					else if(brickLocation.equals("RIGHT")||brickLocation.equals("LEFT"))
+						vx=-vx;
+				}
+			}
+		}
 	}
 	
 	
+	
+	
+	/*
+	 * booster idea 
+	 * 
+	 * 
+	 * GObject collObjR1 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+vy);
+		GObject collObjR2 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+ball.getHeight()-vy);
+		GObject collObjL1 = getElementAt(ball.getX(), ball.getY()+vy);
+		GObject collObjL2 = getElementAt(ball.getX(), ball.getY()+ball.getHeight()-vy);
+		GObject collObjU1 = getElementAt(ball.getX()+vy, ball.getY());
+		GObject collObjU2 = getElementAt(ball.getX()+ball.getWidth()-vy, ball.getY());
+		GObject collObjD1 = getElementAt(ball.getX()+vy, ball.getY()+ball.getHeight());
+		GObject collObjD2 = getElementAt(ball.getX()+ball.getWidth()-vy, ball.getY()+ball.getHeight());
+		if(collObjD1!=null||collObjD2!=null)
+			return "DOWN";
+		if(collObjR1!=null||collObjR2!=null)
+			return "RIGHT";
+		if(collObjL1!=null||collObjL2!=null)
+			return "LEFT";
+		if(collObjU1!=null||collObjU2!=null)
+			return "UP";
+		else return null;
+	 */
 	
 	
 	
