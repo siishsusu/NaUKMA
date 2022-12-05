@@ -77,6 +77,12 @@ public class BreakoutMain extends GraphicsProgram {
 /** An item of GObject the ball has collided with */
 	private static GObject collider;
 	
+/** An item of GObject showing score of the player */
+	private static GLabel score;
+	
+/** An item of GObject GCompound line */
+	private static GCompound header;
+	
 /** The location of the brick due to the location of ball*/
 	private static String brickLocation;
 	
@@ -86,31 +92,29 @@ public class BreakoutMain extends GraphicsProgram {
 /** The speed of the ball by Y axis */
 	private static int vy;
 	
+/** The counter of score */
+	private static int scoreValue=0;
+	
 /** Random generating algorithm */
 	private static RandomGenerator rgen = RandomGenerator.getInstance();
 	
 /** Static color of the paddle */
 	private static final Color paddleColor = new Color(rgen.nextInt(1, 255), rgen.nextInt(1, 255), rgen.nextInt(1, 255));
 
-	private static enum ballDirection
-	{
-		RIGHT,
-		LEFT,
-		UP,
-		DOWN;
-	}
 /* Method: run() */
 /** Runs the BreakoutMain program. */
 	public void run() 
 	{
 		setup();
 		addMouseListeners();
-		while(true)
+		while(!gameOver())
 		{
 			ballMovement();
 			collisionCheck();
 			pause(DELAY);
 		}
+		if(gameOver())
+			removeAll();
 		
 	}
 /**
@@ -125,11 +129,21 @@ public class BreakoutMain extends GraphicsProgram {
 		bricks();
 		paddle=getPaddle();
 		ball=getBall();
+		score=getScore();
+		header=getHeader();
 		ballSpeed();
-		ballDirection ballMovement = ballDirection.DOWN;
+		score.setLabel("Score: "+scoreValue);
+		//ballDirection ballMovement = ballDirection.DOWN;
 		add(paddle, (WIDTH-PADDLE_WIDTH)/2, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
 		add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
+		add(score, WIDTH-score.getWidth()-10, score.getHeight()-2);
+		add(header,0,0);
 		
+	}
+	
+	public boolean gameOver()
+	{
+		return (ball.getY()>=HEIGHT-BALL_RADIUS||scoreValue==1000);
 	}
 	
 	
@@ -155,7 +169,7 @@ public class BreakoutMain extends GraphicsProgram {
 				Color brickColor = new Color(255-25*(i+u)/2, 25*(Math.abs((i-u))), 25*(i+u)/2);
 				brick.setFilled(true);
 				brick.setFillColor(brickColor);
-				add(brick, u*(BRICK_WIDTH+BRICK_SEP)+BRICK_SEP/2,BRICK_Y_OFFSET+i*(BRICK_HEIGHT+BRICK_SEP));
+				add(brick, u*(BRICK_WIDTH+BRICK_SEP)+BRICK_SEP/2,BRICK_Y_OFFSET+45+i*(BRICK_HEIGHT+BRICK_SEP));
 			}
 		}
 		
@@ -185,6 +199,22 @@ public class BreakoutMain extends GraphicsProgram {
 		ball.setFilled(true);
 		ball.setFillColor(Color.cyan);
 		return ball;
+	}
+	
+	private GLabel getScore()
+	{
+		GLabel score = new GLabel("");
+		score.setFont("Times New Roman-36");
+		return score;
+	}
+	
+	private GCompound getHeader()
+	{
+		GCompound header = new GCompound();
+		GLine line = new GLine(0,score.getHeight()+5, WIDTH, score.getHeight()+5);
+		//header.add(score,  WIDTH-score.getWidth()-100, score.getHeight()+25);
+		header.add(line);
+		return header;
 	}
 	
 	
@@ -232,7 +262,7 @@ public class BreakoutMain extends GraphicsProgram {
 		ball.move(vx, vy);
 		if(ball.getX()<=0 || ball.getX()>=WIDTH-BALL_RADIUS)
 			vx=-vx;
-		if(ball.getY()<=0 || ball.getY()>=HEIGHT-BALL_RADIUS)
+		if(ball.getY()<=getHeader().getHeight())
 			vy=-vy;
 	}
 
@@ -264,17 +294,21 @@ public class BreakoutMain extends GraphicsProgram {
  */
 	private String brickLocation()
 	{
-		GObject collObjD = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()+ball.getHeight()+0.01);
-		GObject collObjU = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()-0.01);
-		GObject collObjR = getElementAt(ball.getX()+ball.getWidth()+0.01, ball.getY()+BALL_RADIUS);
-		GObject collObjL = getElementAt(ball.getX()-0.01, ball.getY()+BALL_RADIUS);
-		if(collObjD!=null)
+		GObject collObjR1 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+Math.abs(vy)+0.1);
+		GObject collObjR2 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+ball.getHeight()-Math.abs(vy)-0.1);
+		GObject collObjL1 = getElementAt(ball.getX(), ball.getY()+Math.abs(vy)+0.1);
+		GObject collObjL2 = getElementAt(ball.getX(), ball.getY()+ball.getHeight()-Math.abs(vy)-0.1);
+		GObject collObjU1 = getElementAt(ball.getX()+Math.abs(Math.abs(vy))+0.1, ball.getY());
+		GObject collObjU2 = getElementAt(ball.getX()+ball.getWidth()-Math.abs(vy)-0.1, ball.getY());
+		GObject collObjD1 = getElementAt(ball.getX()+Math.abs(vy)+0.1, ball.getY()+ball.getHeight());
+		GObject collObjD2 = getElementAt(ball.getX()+ball.getWidth()-Math.abs(vy)-0.1, ball.getY()+ball.getHeight());
+		if(collObjD1!=null||collObjD2!=null)
 			return "DOWN";
-		if(collObjR!=null)
+		if(collObjR1!=null||collObjR2!=null)
 			return "RIGHT";
-		if(collObjL!=null)
+		if(collObjL1!=null||collObjL2!=null)
 			return "LEFT";
-		if(collObjU!=null)
+		if(collObjU1!=null||collObjU2!=null)
 			return "UP";
 		else return null;
 	}
@@ -290,19 +324,23 @@ public class BreakoutMain extends GraphicsProgram {
 		brickLocation=brickLocation();
 		if(collider!=null)
 		{
-			if(collider==paddle)
+			if(collider==paddle||collider==header||collider==score)
 				vy=-vy;
-			else
+			else if(brickLocation!=null)
 			{
 				remove(collider);
 				collider=null;
-				if(brickLocation!=null)
+				scoreValue+=10;
+				//if(brickLocation!=null)
 				{
 					if(brickLocation.equals("UP")||brickLocation.equals("DOWN"))
 						vy=-vy;
 					else if(brickLocation.equals("RIGHT")||brickLocation.equals("LEFT"))
 						vx=-vx;
 				}
+				remove(score);
+				score.setLabel("Score: "+scoreValue);
+				add(score, WIDTH-score.getWidth()-10, score.getHeight()-4 );
 			}
 		}
 	}
@@ -314,8 +352,8 @@ public class BreakoutMain extends GraphicsProgram {
 	 * booster idea 
 	 * 
 	 * 
-	 * GObject collObjR1 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+vy);
-		GObject collObjR2 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+ball.getHeight()-vy);
+	 * GObject collObjR1 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+3);
+		GObject collObjR2 = getElementAt(ball.getX()+ball.getWidth(), ball.getY()+ball.getHeight()-3);
 		GObject collObjL1 = getElementAt(ball.getX(), ball.getY()+vy);
 		GObject collObjL2 = getElementAt(ball.getX(), ball.getY()+ball.getHeight()-vy);
 		GObject collObjU1 = getElementAt(ball.getX()+vy, ball.getY());
@@ -334,5 +372,22 @@ public class BreakoutMain extends GraphicsProgram {
 	 */
 	
 	
+	/*private String brickLocation()
+	{
+		GObject collObjD = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()+ball.getHeight()+0.01);
+		GObject collObjU = getElementAt(ball.getX()+BALL_RADIUS, ball.getY()-0.01);
+		GObject collObjR = getElementAt(ball.getX()+ball.getWidth()+0.01, ball.getY()+BALL_RADIUS);
+		GObject collObjL = getElementAt(ball.getX()-0.01, ball.getY()+BALL_RADIUS);
+		if(collObjU!=null)
+			return "UP";
+		if(collObjD!=null)
+			return "DOWN";
+		if(collObjR!=null)
+			return "RIGHT";
+		if(collObjL!=null)
+			return "LEFT";
+		else return null;
+	}
+	*/
 	
 }
