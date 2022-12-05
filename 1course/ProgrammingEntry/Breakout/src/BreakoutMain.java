@@ -122,6 +122,7 @@ public class BreakoutMain extends GraphicsProgram {
 	public void setup()
 	{
 		this.setSize(APPLICATION_WIDTH, APPLICATION_HEIGHT);
+		lives();
 		bricks();
 		paddle=getPaddle();
 		ball=getBall();
@@ -135,8 +136,29 @@ public class BreakoutMain extends GraphicsProgram {
 	
 	
 	//---------------------------------------------------------------------------------------------------------
-	
-	
+/**
+ * Creates heart images.
+ * @author Vladyslava Rudas
+ */	private static final int HEARTSIZE = 25;
+	private void lives(){
+		life1 = new GImage("life.png");
+		life1.setSize(HEARTSIZE, HEARTSIZE);
+		life2 = new GImage("life.png");
+		life2.setSize(HEARTSIZE, HEARTSIZE);
+		life3 = new GImage("life.png");
+		life3.setSize(HEARTSIZE, HEARTSIZE);
+		if (NTURNS == 1) add(life1, 0,0);
+		else if (NTURNS == 2) {
+			add(life1, 0,0);
+			add(life2, HEARTSIZE+10,0);
+		}
+		else if (NTURNS == 3) {
+			add(life1, 0,0);
+			add(life2, HEARTSIZE+10,0);
+			add(life3, 2*HEARTSIZE+20,0);
+		}
+		
+	}
 	
 /**
  * Creates bricks 10x10 (rows x columns) size set in the header.
