@@ -126,20 +126,28 @@ public class BreakoutMain extends GraphicsProgram {
 	       this.setSize(WIDTH, HEIGHT);
 	       screen = 1;
 			bottoms();
+			waitForClick();
+			removeAll();
+            screen = 2;
+            pause(DELAY);
+            game();
 		}
-		private static RandomGenerator rand = RandomGenerator.getInstance();
+		/**
+		 * Draw buttons of choosing levels
+	     * @author Vladyslava Rudas
+		 */
 		public void bottoms() 
 		{
 			bottom1 = new GRect(100, HEIGHT/2, BOTTOMWIDTH, BOTTOMHEIGHT);
 	        bottom1.setFilled(true);
-	        bottom1.setColor(new Color(rand.nextInt(1, 255), rand.nextInt(1, 255), rand.nextInt(1, 255)));
+	        bottom1.setColor(new Color(rgen.nextInt(1, 255), rgen.nextInt(1, 255), rgen.nextInt(1, 255)));
 	        firstLevel = new GLabel("Level 1");
 	        firstLevel.setColor(Color.BLACK);
 	        firstLevel.setFont("Times New Roman-28");
 	        add(bottom1);
 	        add(firstLevel, 100+BOTTOMWIDTH/2-40, HEIGHT/2+30);
 		}
-		public void mouseClicked(MouseEvent e)
+		/*public void mouseClicked(MouseEvent e)
 		{
 			if(screen ==1){
 			double ClickX= e.getX();
@@ -152,7 +160,7 @@ public class BreakoutMain extends GraphicsProgram {
 	            game();
 	        }
 			}
-		}
+		}*/
 		public void game() 
 		{
 			setup();
