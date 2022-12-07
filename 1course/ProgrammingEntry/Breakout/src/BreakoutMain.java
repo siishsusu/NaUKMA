@@ -63,7 +63,7 @@ public class BreakoutMain extends GraphicsProgram {
 	private static final int BRICK_Y_OFFSET = 70;
 	
 /** In-game movement delay */
-	private static final int DELAY = 10;
+	private static final int DELAY = 6;
 
 /** Number of turns */
 	private static final int NTURNS = 3;
@@ -90,7 +90,7 @@ public class BreakoutMain extends GraphicsProgram {
 	private static double vx;
 	
 /** The speed of the ball by Y axis */
-	private static int vy;
+	private static double vy;
 	
 /** The counter of score */
 	private static int scoreValue=0;
@@ -247,8 +247,8 @@ public class BreakoutMain extends GraphicsProgram {
  */
 	private void ballSpeed()
 	{
-		vx = rgen.nextDouble(1.0, 3.0); 
-		vy = 3;
+		vx = rgen.nextDouble(0.5, 1.5); 
+		vy = 1.5;
 		if (rgen.nextBoolean(0.5)) vx = -vx;
 	}
 	
