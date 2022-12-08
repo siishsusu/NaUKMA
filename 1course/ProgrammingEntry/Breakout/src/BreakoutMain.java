@@ -25,16 +25,23 @@ public class BreakoutMain extends GraphicsProgram {
 
 
 	private static final long serialVersionUID = 1L;
+	
+	
+/** The number of the level played */
+	private static int lvl;
+	
+	
+	
 /** Width and height of application window in pixels */
 	public static final int APPLICATION_WIDTH = 400;
-	public static final int APPLICATION_HEIGHT = 600;
+	public static final int APPLICATION_HEIGHT = 600;  
 
 /** Dimensions of game board (usually the same) */
 	private static final int WIDTH = APPLICATION_WIDTH;
 	private static final int HEIGHT = APPLICATION_HEIGHT;
 
 /** Dimensions of the paddle */
-	private static final int PADDLE_WIDTH = 60;
+	private static int PADDLE_WIDTH = 60;
 	private static final int PADDLE_HEIGHT = 10;
 
 /** Offset of the paddle up from the bottom */
@@ -57,13 +64,13 @@ public class BreakoutMain extends GraphicsProgram {
 	private static final int BRICK_HEIGHT = 8;
 
 /** Radius of the ball in pixels */
-	private static final int BALL_RADIUS = 10;
+	private static int BALL_RADIUS = 10;
 
 /** Offset of the top brick row from the top */
 	private static final int BRICK_Y_OFFSET = 70;
 	
 /** In-game movement delay */
-	private static final int DELAY = 6;
+	private static int DELAY = 6;
 
 /** Number of turns */
 	private static final int NTURNS = 3;
@@ -77,6 +84,15 @@ public class BreakoutMain extends GraphicsProgram {
 /** An item of GObject the ball has collided with */
 	private static GObject collider;
 	
+/** An item of GObject that gives additional values when collected */
+	private static GRect booster;
+	
+/** An item of GObject explaining the function of booster */
+	private static GLabel explanation;
+	
+/** Timer showing how many ticks have gone since the appearance of the explanation */
+	private static int timer;
+	
 /** An item of GObject showing score of the player */
 	private static GLabel score;
 	
@@ -87,9 +103,9 @@ public class BreakoutMain extends GraphicsProgram {
 	private static String brickLocation;
 	
 /** Images of a heart */
-	private static GImage heart1=heart();
-	private static GImage heart2=heart();
-	private static GImage heart3=heart();
+	private static GImage heart1=getHeart();
+	private static GImage heart2=getHeart();
+	private static GImage heart3=getHeart();
 	
 /** Amount of lives */
 	private static int lives=3;
@@ -118,8 +134,10 @@ public class BreakoutMain extends GraphicsProgram {
 		while(!gameOver())
 		{
 			ballMovement();
+			boosterMovement();
 			collisionCheck();
 			pause(DELAY);
+			
 		}
 		if(gameOver())
 			removeAll();
@@ -132,6 +150,9 @@ public class BreakoutMain extends GraphicsProgram {
  */
 	public void setup()
 	{
+		
+		lvl=2;
+		
 		this.setSize(APPLICATION_WIDTH, APPLICATION_HEIGHT);
 		bricks();
 		paddle=getPaddle();
@@ -157,14 +178,14 @@ public class BreakoutMain extends GraphicsProgram {
 			if(lives==2)
 			{
 				remove(heart3);
-				heart3=heartBW();
+				heart3=getHeartBW();
 				//add(heart3);
 				pause(500);
 			}
 			else if(lives==1)
 			{
 				remove(heart2);
-				heart2=heartBW();
+				heart2=getHeartBW();
 				//add(heart2);
 				pause(500);
 			}
@@ -178,7 +199,7 @@ public class BreakoutMain extends GraphicsProgram {
 	
 	
 	
-	//---------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
 	
 	
 	
@@ -207,7 +228,7 @@ public class BreakoutMain extends GraphicsProgram {
  * @author Maksym Loshak
  * @return heart
  */
-	private static GImage heart()
+	private static GImage getHeart()
 	{
 		GImage heart = new GImage("life.png");
 		heart.scale(0.11);
@@ -217,12 +238,20 @@ public class BreakoutMain extends GraphicsProgram {
  * @author Maksym Loshak
  * @return heartBW
  */	
-	private static GImage heartBW()
+	private static GImage getHeartBW()
 	{
-
 		GImage heartBW = new GImage("life_BW.png");
 		heartBW.scale(0.11);
 		return heartBW;
+	}
+	
+	private static GRect getBooster()
+	{
+		GRect booster = new GRect(10, 10);
+		booster.setFilled(true);
+		Color boosterColor = new Color(rgen.nextInt(1, 255), rgen.nextInt(1, 255), rgen.nextInt(1, 255));
+		booster.setFillColor(boosterColor);
+		return booster;
 	}
 /**
  * Creates an Object of GObject class (GRect)
@@ -250,14 +279,24 @@ public class BreakoutMain extends GraphicsProgram {
 		ball.setFillColor(Color.cyan);
 		return ball;
 	}
-	
+/**
+ * Creates an Object of GObject class (GLabel)
+ * in-game score bar
+ * @author Maksym Loshak
+ * @return score
+ */
 	private GLabel getScore()
 	{
 		GLabel score = new GLabel("");
 		score.setFont("Times New Roman-36");
 		return score;
 	}
-	
+/**
+ * Creates an Object of GObject class (GCompound)
+ * in-game headline
+ * @author Maksym Loshak
+ * @return header
+ */
 	private GCompound getHeader()
 	{
 		GCompound header = new GCompound();
@@ -269,8 +308,7 @@ public class BreakoutMain extends GraphicsProgram {
 	
 	
 	
-	
-	//---------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------
 	
 	
 	
@@ -301,12 +339,27 @@ public class BreakoutMain extends GraphicsProgram {
 		vy = 1.5;
 		if (rgen.nextBoolean(0.5)) vx = -vx;
 	}
-	
+/**
+ * Reloads the amount of lives 
+ * @author Maksym Loshak
+ */
 	private void heartInitialization()
 	{
 		add(heart1, 10,10);
 		add(heart2, heart1.getX()+heart1.getWidth()+5, 10);
 		add(heart3, heart2.getX()+heart2.getWidth()+5, 10);
+	}
+/**
+ * Generates probability of booster being dropped from random brick
+ * @author Maksym Loshak
+ * @return true/false
+ */
+	private boolean boosterChance()
+	{
+		int chance = 5;// rgen.nextInt(1,5);
+		if(chance==5)
+			return true;
+		else return false;
 	}
 /**
  * Creates the ball movement with the set speed, prevents ball from leaving the
@@ -331,6 +384,29 @@ public class BreakoutMain extends GraphicsProgram {
 				add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
 				heartInitialization();
 			}	
+		}
+	}
+/**
+ * Creates booster downfall if this item exists
+ * @author Maksym Loshak
+ */
+	private void boosterMovement()
+	{
+		if(booster!=null)
+		{
+			booster.move(0, 0.5);
+			if(booster.getY()>=getHeight())
+			{
+				remove(booster);
+				booster=null;
+			}
+		}
+		if(explanation!=null)
+			timer++;
+		if(timer==100&&explanation!=null)
+		{
+			remove(explanation);
+			explanation=null;
 		}
 	}
 
@@ -381,23 +457,25 @@ public class BreakoutMain extends GraphicsProgram {
 		else return null;
 	}
 	
-/** Checks for collisions, if the collider id a paddle, ball bounces back, if not
- * the collider is removed from the in-game and the ball finds the direction in which it 
- * bounces with method brickLocation();
+/** Checks for collisions of the ball, if the collider id a paddle, ball bounces back, if not
+ * the collider is removed from the in-game space and the ball finds the direction in which it 
+ * bounces with method brickLocation(); If the collider is a brick there is a probability of 
+ * booster spawning.
+ * 
+ * Also checks if there is a collision between paddle and booster, if so it runs method 
+ * boosterApply();
  * @author Maksym Loshak
  */
 	private void collisionCheck()
 	{
 		collider=getCollidedObjet();
 		brickLocation=brickLocation();
-		if(collider!=null)
+		if(collider!=null&&collider!=booster)
 		{
 			if(collider==paddle||collider==header||collider==score)
 				vy=-vy;
 			else if(brickLocation!=null)
 			{
-				remove(collider);
-				collider=null;
 				scoreValue+=10;
 				//if(brickLocation!=null)
 				{
@@ -409,8 +487,80 @@ public class BreakoutMain extends GraphicsProgram {
 				remove(score);
 				score.setLabel("Score: "+scoreValue);
 				add(score, WIDTH-score.getWidth()-10, score.getHeight()-4 );
+				if(lvl>1&&booster==null)
+				{
+					if(boosterChance())
+					{
+						booster=getBooster();
+						add(booster, collider.getX()+(collider.getWidth()-booster.getWidth())/2, collider.getY()+collider.getHeight()/2);
+					}
+				}
+				remove(collider);
+				collider=null;
 			}
 		}
+		if(booster!=null)
+		{
+			if(booster.getX()+booster.getWidth()>paddle.getX()&&booster.getX()<paddle.getX()+paddle.getWidth())
+			{
+				if(booster.getY()+booster.getHeight()>=paddle.getY()&&booster.getY()<=paddle.getY()+paddle.getHeight())
+				{
+					remove(booster);
+					booster=null;
+					boosterApply();
+				}
+			}
+		}
+	}
+/**Applies random booster and shows explanation what this booster does
+ * boosters:
+ * paddle (increased/decreased size)
+ * ball (increased size/movement speed)
+ * @author Maksym Loshak
+ */
+	private void boosterApply()
+	{
+		if(explanation!=null)
+		{
+			remove(explanation);
+			explanation=null;
+		}
+		explanation = new GLabel("");
+		int booster = rgen.nextInt(1,4);
+		if(booster==1)
+		{
+			PADDLE_WIDTH+=20;
+			explanation.setLabel("Paddle size increased!");
+			explanation.setColor(Color.blue);
+		}
+		else if(booster==2)
+		{
+			DELAY-=1;
+			explanation.setLabel("Ball speed increased!");
+			explanation.setColor(Color.red);
+		}
+			
+		else if(booster==3&&PADDLE_WIDTH>40)
+		{
+			explanation.setLabel("Paddle size decreased!");
+			explanation.setColor(Color.red);
+			PADDLE_WIDTH-=20;
+		}
+		else if(booster==4)
+		{
+			BALL_RADIUS+=2;  	
+			explanation.setLabel("Ball size increased!");
+			double x = ball.getX();
+			double y = ball.getY();
+			remove(ball);
+			ball=getBall();
+			add(ball, x-2, y-2);
+			explanation.setColor(Color.blue);
+		}
+		
+		explanation.setFont("Times New Roman-36");
+		timer=0;
+		add(explanation, (getWidth()-explanation.getWidth())/2, 40+explanation.getHeight());
 	}
 	
 	
