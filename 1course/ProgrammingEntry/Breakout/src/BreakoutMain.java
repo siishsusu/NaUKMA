@@ -86,6 +86,14 @@ public class BreakoutMain extends GraphicsProgram {
 /** The location of the brick due to the location of ball*/
 	private static String brickLocation;
 	
+/** Images of a heart */
+	private static GImage heart1=heart();
+	private static GImage heart2=heart();
+	private static GImage heart3=heart();
+	
+/** Amount of lives */
+	private static int lives=3;
+	
 /** The speed of the ball by X axis */
 	private static double vx;
 	
@@ -115,7 +123,6 @@ public class BreakoutMain extends GraphicsProgram {
 		}
 		if(gameOver())
 			removeAll();
-		
 	}
 /**
  * Sets the size of the console
@@ -137,13 +144,36 @@ public class BreakoutMain extends GraphicsProgram {
 		add(paddle, (WIDTH-PADDLE_WIDTH)/2, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
 		add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
 		add(score, WIDTH-score.getWidth()-10, score.getHeight()-2);
+		heartInitialization();
 		add(header,0,0);
 		
 	}
 	
 	public boolean gameOver()
 	{
-		return (ball.getY()>=HEIGHT-BALL_RADIUS||scoreValue==1000);
+		if(ball.getY()>=HEIGHT)
+		{
+			lives--;
+			if(lives==2)
+			{
+				remove(heart3);
+				heart3=heartBW();
+				//add(heart3);
+				pause(500);
+			}
+			else if(lives==1)
+			{
+				remove(heart2);
+				heart2=heartBW();
+				//add(heart2);
+				pause(500);
+			}
+			else 
+				return (true);
+		}
+		else
+		return (scoreValue==1000);
+		return false;
 	}
 	
 	
@@ -172,7 +202,27 @@ public class BreakoutMain extends GraphicsProgram {
 				add(brick, u*(BRICK_WIDTH+BRICK_SEP)+BRICK_SEP/2,BRICK_Y_OFFSET+45+i*(BRICK_HEIGHT+BRICK_SEP));
 			}
 		}
-		
+	}
+/** Creates an image of a heart showing the amount of lives 
+ * @author Maksym Loshak
+ * @return heart
+ */
+	private static GImage heart()
+	{
+		GImage heart = new GImage("life.png");
+		heart.scale(0.11);
+		return heart;
+	}
+/** Creates an image of a heart showing the amount of lives 
+ * @author Maksym Loshak
+ * @return heartBW
+ */	
+	private static GImage heartBW()
+	{
+
+		GImage heartBW = new GImage("life_BW.png");
+		heartBW.scale(0.11);
+		return heartBW;
 	}
 /**
  * Creates an Object of GObject class (GRect)
@@ -252,6 +302,12 @@ public class BreakoutMain extends GraphicsProgram {
 		if (rgen.nextBoolean(0.5)) vx = -vx;
 	}
 	
+	private void heartInitialization()
+	{
+		add(heart1, 10,10);
+		add(heart2, heart1.getX()+heart1.getWidth()+5, 10);
+		add(heart3, heart2.getX()+heart2.getWidth()+5, 10);
+	}
 /**
  * Creates the ball movement with the set speed, prevents ball from leaving the
  * in-game zone.
@@ -264,6 +320,18 @@ public class BreakoutMain extends GraphicsProgram {
 			vx=-vx;
 		if(ball.getY()<=getHeader().getHeight())
 			vy=-vy;
+		if(ball.getY()>=HEIGHT+vy)
+		{
+			remove(ball);
+			ball=null;
+			if(lives!=0)
+			{
+				ball=getBall();
+				ballSpeed();
+				add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
+				heartInitialization();
+			}	
+		}
 	}
 
 /** Finds the collider for a ball, returns null if there is no colision
