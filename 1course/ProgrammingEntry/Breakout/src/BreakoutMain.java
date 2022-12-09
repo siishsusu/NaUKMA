@@ -473,7 +473,13 @@ public class BreakoutMain extends GraphicsProgram {
 		if(collider!=null&&collider!=booster)
 		{
 			if(collider==paddle||collider==header||collider==score)
+			{
+				if(collider==paddle)
+				{
+					ball.setLocation(ball.getX(), paddle.getY()-ball.getHeight());
+				}
 				vy=-vy;
+			}
 			else if(brickLocation!=null)
 			{
 				scoreValue+=10;
@@ -515,7 +521,8 @@ public class BreakoutMain extends GraphicsProgram {
 /**Applies random booster and shows explanation what this booster does
  * boosters:
  * paddle (increased/decreased size)
- * ball (increased size/movement speed)
+ * ball (increased/decreased size)
+ * ball (increased/decreased movement speed)
  * @author Maksym Loshak
  */
 	private void boosterApply()
@@ -526,7 +533,7 @@ public class BreakoutMain extends GraphicsProgram {
 			explanation=null;
 		}
 		explanation = new GLabel("");
-		int booster = rgen.nextInt(1,4);
+		int booster = rgen.nextInt(1,6);
 		if(booster==1)
 		{
 			PADDLE_WIDTH+=20;
@@ -535,16 +542,24 @@ public class BreakoutMain extends GraphicsProgram {
 		}
 		else if(booster==2)
 		{
-			DELAY-=1;
-			explanation.setLabel("Ball speed increased!");
-			explanation.setColor(Color.red);
+			if(DELAY>3)
+			{
+				DELAY-=1;
+				explanation.setLabel("Ball speed increased!");
+				explanation.setColor(Color.red);
+			}
+			else boosterApply();
 		}
 			
-		else if(booster==3&&PADDLE_WIDTH>40)
+		else if(booster==3)
 		{
-			explanation.setLabel("Paddle size decreased!");
-			explanation.setColor(Color.red);
-			PADDLE_WIDTH-=20;
+			if(PADDLE_WIDTH>40)
+			{
+				explanation.setLabel("Paddle size decreased!");
+				explanation.setColor(Color.red);
+				PADDLE_WIDTH-=20;
+			}
+			else boosterApply();
 		}
 		else if(booster==4)
 		{
@@ -556,6 +571,31 @@ public class BreakoutMain extends GraphicsProgram {
 			ball=getBall();
 			add(ball, x-2, y-2);
 			explanation.setColor(Color.blue);
+		}
+		else if(booster==5)
+		{
+			if(BALL_RADIUS>6)
+			{
+				BALL_RADIUS-=2;  	
+				explanation.setLabel("Ball size decreased!");
+				double x = ball.getX();
+				double y = ball.getY();
+				remove(ball);
+				ball=getBall();
+				add(ball, x-2, y-2);
+				explanation.setColor(Color.red);
+			}
+			else boosterApply();
+		}
+		else if(booster==6)
+		{
+			if(DELAY<5)
+			{
+				DELAY+=1;
+				explanation.setLabel("Ball speed decrased!");
+				explanation.setColor(Color.blue);
+			}
+			else boosterApply();
 		}
 		
 		explanation.setFont("Times New Roman-36");
