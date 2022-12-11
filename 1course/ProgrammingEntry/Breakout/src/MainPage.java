@@ -11,7 +11,7 @@ import acm.graphics.GImage;
 import acm.graphics.GObject;
 
 
-public class mainPage extends BreakoutMain{
+public class MainPage extends BreakoutMain{
 	
 	/**
 	 * Images used in the game
@@ -61,12 +61,14 @@ public class mainPage extends BreakoutMain{
 	 */
 	public void keyPressed(KeyEvent e){
 		if (e.getKeyCode() == KeyEvent.VK_1) {
-			removeAll();
-			screen=3;
+			lvl=1;
 		    }else if (e.getKeyCode() == KeyEvent.VK_2) {
-		    
+		    lvl=2;
 		    }else if (e.getKeyCode() == KeyEvent.VK_3) {
+		    lvl=3;
 			}
+		removeAll();
+		screen=3;
 	}
 	public void mouseClicked(MouseEvent e){
 		double ClickX= e.getX();
@@ -130,7 +132,7 @@ public class mainPage extends BreakoutMain{
 	 * Creates victory screen
 	 * @author Vladyslava Rudas
 	 */
-	private void victory() {
+	public void victory() {
 		youWin = new GImage("youWin.jpg");
 		add(youWin, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 	}
@@ -138,7 +140,7 @@ public class mainPage extends BreakoutMain{
 	 * Creates losing screen
 	 * @author Vladyslava Rudas
 	 */
-	private void lose() {
+	public void lose() {
 		youLose = new GImage("youLose.jpg");
 		add(youLose, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 	}

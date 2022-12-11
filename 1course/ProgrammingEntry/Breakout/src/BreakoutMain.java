@@ -28,7 +28,7 @@ public class BreakoutMain extends GraphicsProgram {
 	
 	
 	/** The number of the level played */
-		private static int lvl;
+		protected static int lvl;
 		
 		
 		
@@ -176,9 +176,7 @@ public class BreakoutMain extends GraphicsProgram {
 			score=getScore();
 			header=getHeader();
 			ballSpeed();
-			score.setLabel("Score: "+scoreValue);
-			
-			//ballDirection ballMovement = ballDirection.DOWN;
+			score.setLabel("Score: "+scoreValue); 
 			add(paddle, (WIDTH-PADDLE_WIDTH)/2, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
 			add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
 			add(score, WIDTH-score.getWidth()-10, score.getHeight()-2);
