@@ -9,8 +9,9 @@ import javax.swing.JButton;
 
 import acm.graphics.GImage;
 import acm.graphics.GObject;
+import acm.util.SoundClip;
 
-public class mainPage extends BreakoutMain{
+public class MainPage extends BreakoutMain{
 	/**
      * mouse clicked sound
      */
@@ -156,5 +157,5 @@ public class mainPage extends BreakoutMain{
 		level3 = new GImage("level3.png");
 		add(level3, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+100);
 	}
-
+}
 

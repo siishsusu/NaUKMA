@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="acm.jar" sourcepath="C:/Users/maxlo/Downloads/acm.zip"/>
 	<classpathentry kind="lib" path="/Practice7/acm.jar"/>
+	<classpathentry kind="lib" path="/PlaneGame/acm.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
