@@ -23,7 +23,6 @@ import java.awt.event.*;
 
 public class BreakoutMain extends GraphicsProgram {
 
-
 	private static final long serialVersionUID = 1L;
 	
 	
@@ -652,6 +651,9 @@ public class BreakoutMain extends GraphicsProgram {
 			pause(1000);
 			restart = new GImage("restart.png");
 			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			close = new GImage("close.png");
+			close.setSize(50,50);
+			add(close,APPLICATION_WIDTH-50, 0);
 		}
 		/**
 		 * Creates losing screen with restart button
@@ -663,6 +665,9 @@ public class BreakoutMain extends GraphicsProgram {
 			pause(1000);
 			restart = new GImage("restart.png");
 			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			close = new GImage("close.png");
+			close.setSize(50,50);
+			add(close,APPLICATION_WIDTH-50, 0);
 		}
 		/**
 		 * Set background picture

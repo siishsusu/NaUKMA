@@ -12,8 +12,7 @@ import acm.graphics.GObject;
 
 
 public class mainPage extends BreakoutMain{
-	
-	
+
 	/**
      * mouse clicked sound
      */
@@ -103,22 +102,26 @@ public class mainPage extends BreakoutMain{
 				click.play();
 				removeAll();
 				screen=6;
+
 			}else if (collObj == close)  {
 	        	click.setVolume(0.5);
 				click.play();
 	        	System.exit(0);
 	        }
+
         }else if(screen==5){
         	if (collObj == restart)  {
 				click.setVolume(0.5);
 				click.play();
 				removeAll();
 				screen=6;
+
 			}else if (collObj == close)  {
 	        	click.setVolume(0.5);
 				click.play();
 	        	System.exit(0);
 	        }
+
         }
 	}
 	private void restartGame() {
@@ -155,3 +158,4 @@ public class mainPage extends BreakoutMain{
 	}
 	
 }
+
