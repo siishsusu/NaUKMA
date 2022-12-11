@@ -10,23 +10,26 @@ import javax.swing.JButton;
 import acm.graphics.GImage;
 import acm.graphics.GObject;
 
-
-public class MainPage extends BreakoutMain{
-	
+public class mainPage extends BreakoutMain{
 	/**
-	 * Images used in the game
-	 */
-	protected GImage background, play, quit, level1, level2, level3, back, close, youWin,youLose;
-	
+     * mouse clicked sound
+     */
+     public SoundClip click = new SoundClip("clickButton.wav");
+     
 	public void run(){
 		this.setSize(APPLICATION_WIDTH, APPLICATION_HEIGHT); 
 		screen=1;
+		while(screen!=7){
 		background();
 		playQuitButtons();
-		if(screen!=2)addMouseListeners();
+		addMouseListeners();
 		while(screen!=3){
 		}
 		startGame();
+		while(screen!=6){
+			
+		}restartGame();
+		}
 	}
 	
 	/**
@@ -42,16 +45,7 @@ public class MainPage extends BreakoutMain{
 		quit.setSize(210,61);
 		add(quit, APPLICATION_WIDTH/4, APPLICATION_HEIGHT/1.9);
 	}
-	/**
-	 * Set background picture
-	 * @author Vladyslava Rudas
-	 */
-	protected GImage background(){
-		background = new GImage("background.jpg");
-		background.sendBackward();
-		add(background, 0, 0);
-		return background;
-	}
+	
 	
 	/* 
 	 * If key 1 is pressed level 1 starts
@@ -76,8 +70,13 @@ public class MainPage extends BreakoutMain{
         GObject collObj = getElementAt(ClickX, ClickY);
 		if(screen==1){
 			if (collObj == quit)  {
+				click.setVolume(0.5);
+				click.play();
 				System.exit(0);
 	        }else if (collObj == play)  {
+	        	click.setVolume(0.5);
+				click.play();
+				pause(400);
 	        	remove(play);
 	        	remove(quit);
 	        	screen=2;
@@ -88,22 +87,51 @@ public class MainPage extends BreakoutMain{
 	        }
 		}else if(screen==2){
 			if (collObj == back)  {
+				click.setVolume(0.5);
+				click.play();
 				removeAll();
 				run();
 	        }else if (collObj == close)  {
+	        	click.setVolume(0.5);
+				click.play();
 	        	System.exit(0);
-	        }/*else if (collObj == level1)  {
-	        	removeAll();
-	        	background();
-	        	screen=3;
-	    			waitForClick();
-	    			removeAll();
-	    			//game();
-	    			
-	        	
-	        }*/
-		}
+	        }
+		}else if(screen==4){
+			if (collObj == restart)  {
+				click.setVolume(0.5);
+				click.play();
+				removeAll();
+				screen=6;
+
+			}else if (collObj == close)  {
+	        	click.setVolume(0.5);
+				click.play();
+	        	System.exit(0);
+	        }
+
+        }else if(screen==5){
+        	if (collObj == restart)  {
+				click.setVolume(0.5);
+				click.play();
+				removeAll();
+				screen=6;
+
+			}else if (collObj == close)  {
+	        	click.setVolume(0.5);
+				click.play();
+	        	System.exit(0);
+	        }
+
+        }
 	}
+	private void restartGame() {
+		NBRICKS_PER_ROW = 10;
+		NBRICK_ROWS = 10;
+		scoreValue=0;
+		lives=3;
+		run();
+	}
+
 	/**
 	 * Creates 2 buttons go back/quit the program
 	 * @author Vladyslava Rudas
@@ -128,20 +156,5 @@ public class MainPage extends BreakoutMain{
 		level3 = new GImage("level3.png");
 		add(level3, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+100);
 	}
-	/**
-	 * Creates victory screen
-	 * @author Vladyslava Rudas
-	 */
-	public void victory() {
-		youWin = new GImage("youWin.jpg");
-		add(youWin, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
-	}
-	/**
-	 * Creates losing screen
-	 * @author Vladyslava Rudas
-	 */
-	public void lose() {
-		youLose = new GImage("youLose.jpg");
-		add(youLose, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
-	}
-}
+
+
