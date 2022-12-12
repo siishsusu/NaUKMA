@@ -23,15 +23,14 @@ import java.awt.event.*;
 
 public class BreakoutMain extends GraphicsProgram {
 
+	
 	private static final long serialVersionUID = 1L;
+	
 	
 	/** The number of the level played */
 		protected static int lvl;
 		
 		
-	/** Shows if the sound is being played */
-		public boolean soundPlaying = false;
-
 		
 	/** Width and height of application window in pixels */
 		public static final int APPLICATION_WIDTH = 400;
@@ -49,10 +48,10 @@ public class BreakoutMain extends GraphicsProgram {
 		protected static final int PADDLE_Y_OFFSET = 30;
 
 	/** Number of bricks per row */
-		protected static int NBRICKS_PER_ROW = 10;
+		protected static  int NBRICKS_PER_ROW = 10;
 
 	/** Number of rows of bricks */
-		protected static int NBRICK_ROWS = 10;
+		protected static  int NBRICK_ROWS = 10;
 
 	/** Separation between bricks */
 		protected static final int BRICK_SEP = 4;
@@ -75,9 +74,6 @@ public class BreakoutMain extends GraphicsProgram {
 
 	/** Number of turns */
 		protected static final int NTURNS = 3;
-		
-	/** Shows if superBoooster is activated */
-		private static boolean superBooster;
 		
 	/** An item of GObject paddle (GRect) */
 		protected static GRect paddle;
@@ -107,9 +103,9 @@ public class BreakoutMain extends GraphicsProgram {
 		private static String brickLocation;
 		
 	/** Images of a heart */
-		private static GImage heart1=getHeart();
-		private static GImage heart2=getHeart();
-		private static GImage heart3=getHeart();
+		protected static GImage heart1=getHeart();
+		protected static GImage heart2=getHeart();
+		protected static GImage heart3=getHeart();
 		
 	/** Amount of lives */
 		protected static int lives=3;
@@ -135,7 +131,7 @@ public class BreakoutMain extends GraphicsProgram {
 		 * Images used in the game
 		 */
 		protected GImage background, play, quit, level1, level2,
-		level3, back, close, youWin,youLose, restart;
+		level3, back, close, youWin,youLose, restart, nextLevel;
 		
 		/**
 	     * If player won
@@ -146,11 +142,13 @@ public class BreakoutMain extends GraphicsProgram {
 	     * If player lose
 	     */
 		public SoundClip whatIfLose = new SoundClip("failing.au");
+		
 	/* Method: run() */
 	/** Runs the BreakoutMain program. */
 		public void startGame() 
 		{
 			setup(); 
+			
 			while(!gameOver())
 			{
 				ballMovement();
@@ -159,7 +157,23 @@ public class BreakoutMain extends GraphicsProgram {
 				pause(DELAY);
 				
 			}
-			//if(gameOver())
+			if(gameOver()){
+				
+				waitForClick();
+				removeAll();
+				screen=3;
+				if(lvl!=3) lvl=lvl++;
+				else if(lvl==3)lvl=1;
+				NBRICKS_PER_ROW = 10;
+				NBRICK_ROWS = 10;
+				scoreValue=0;
+				lives=3;
+				heart1=getHeart();
+				heart2=getHeart();
+				heart3=getHeart();
+				startGame();
+				
+			}
 			}
 	/**
 	 * Sets the size of the console
@@ -169,27 +183,21 @@ public class BreakoutMain extends GraphicsProgram {
 	 */
 		public void setup()
 		{
+			//backgroundSound.setVolume(0.5);
+			//backgroundSound.play();
+			//lvl=2;
 			
 			this.setSize(APPLICATION_WIDTH, APPLICATION_HEIGHT);
-			PADDLE_WIDTH = 60;
-			BALL_RADIUS = 10;
-			if(lvl==1)
-				DELAY = 7;
-			else if(lvl==2)
-				DELAY = 5;
-			else if(lvl==3)
-				DELAY = 6;
-			lives=3;
-			heart1=getHeart();
-			heart2=getHeart();
-			heart3 =getHeart();
+			
 			bricks();
 			paddle=getPaddle();
 			ball=getBall();
 			score=getScore();
 			header=getHeader();
 			ballSpeed();
-			score.setLabel("Score: "+scoreValue); 
+			score.setLabel("Score: "+scoreValue);
+			
+			//ballDirection ballMovement = ballDirection.DOWN;
 			add(paddle, (WIDTH-PADDLE_WIDTH)/2, HEIGHT-PADDLE_Y_OFFSET-PADDLE_HEIGHT);
 			add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
 			add(score, WIDTH-score.getWidth()-10, score.getHeight()-2);
@@ -198,7 +206,16 @@ public class BreakoutMain extends GraphicsProgram {
 			
 		}
 		
-		public boolean gameOver()
+		/**
+		 * Boolean that returns is game over or not
+		 * Over if:
+		 * The ball flew down 3 times
+		 * or
+		 * scoreValue==1000
+		 * @author Maksym Loshak
+		 */
+		
+		protected boolean gameOver()
 		{
 			if(ball.getY()>=HEIGHT)
 			{
@@ -228,7 +245,7 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 					
 			}
-			else if (scoreValue>=1000){
+			else if (scoreValue==1000){
 				removeAll();
 				background();
 				whatIfWin.setVolume(0.5);
@@ -250,7 +267,7 @@ public class BreakoutMain extends GraphicsProgram {
 	 * Creates bricks 10x10 (rows x columns) size set in the header.
 	 * @author Maksym Loshak
 	 */
-		private void bricks()
+		protected void bricks()
 		{
 			for(int i=0; i<NBRICK_ROWS; i++)
 			{
@@ -271,7 +288,7 @@ public class BreakoutMain extends GraphicsProgram {
 	 * @author Maksym Loshak
 	 * @return heart
 	 */
-		private static GImage getHeart()
+		protected static GImage getHeart()
 		{
 			GImage heart = new GImage("life.png");
 			heart.scale(0.11);
@@ -288,6 +305,11 @@ public class BreakoutMain extends GraphicsProgram {
 			return heartBW;
 		}
 		
+		/**
+		 * /** Creates a booster 
+	     * @author Maksym Loshak
+	     * @return booster
+	     */	
 		private static GRect getBooster()
 		{
 			GRect booster = new GRect(10, 10);
@@ -356,7 +378,8 @@ public class BreakoutMain extends GraphicsProgram {
 		
 		
 	/**
-	 * Validates movement of the paddle in the in-game area due to the movement of the cursor.
+	 * Validates movement of the paddle in the in-game area due to the
+	 * movement of the cursor.
 	 * @author Maksym Loshak
 	 */
 	public void mouseMoved(MouseEvent e)
@@ -402,12 +425,8 @@ public class BreakoutMain extends GraphicsProgram {
 	 */
 		private boolean boosterChance()
 		{
-			int chance;
-			if(lvl==3)
-				chance = 1;
-			else
-				chance = rgen.nextInt(1,3);
-			if(chance==1)
+			int chance = 5;// rgen.nextInt(1,5);
+			if(chance==5)
 				return true;
 			else return false;
 		}
@@ -420,19 +439,9 @@ public class BreakoutMain extends GraphicsProgram {
 		{
 			ball.move(vx, vy);
 			if(ball.getX()<=0 || ball.getX()>=WIDTH-BALL_RADIUS)
-			{
 				vx=-vx;
-				SoundClip bounce = new SoundClip("hit.wav");
-				bounce.setVolume(0.1);
-				bounce.play();
-			}
 			if(ball.getY()<=getHeader().getHeight())
-			{
 				vy=-vy;
-				SoundClip bounce = new SoundClip("hit.wav");
-				bounce.setVolume(0.1);
-				bounce.play();
-			}
 			if(ball.getY()>=HEIGHT+vy)
 			{
 				remove(ball);
@@ -443,9 +452,6 @@ public class BreakoutMain extends GraphicsProgram {
 					ballSpeed();
 					add(ball,(WIDTH-BALL_RADIUS)/2, (HEIGHT-BALL_RADIUS)/2);
 					heartInitialization();
-					SoundClip heartLost = new SoundClip("heart lost.wav");
-					heartLost.setVolume(0.1);
-					heartLost.play();
 				}	
 			}
 		}
@@ -520,13 +526,13 @@ public class BreakoutMain extends GraphicsProgram {
 			else return null;
 		}
 		
-	/** Checks for collisions of the ball, if the collider id a paddle, ball bounces back, if not
-	 * the collider is removed from the in-game space and the ball finds the direction in which it 
-	 * bounces with method brickLocation(); If the collider is a brick there is a probability of 
-	 * booster spawning.
+	/** Checks for collisions of the ball, if the collider id a paddle, ball bounces back,
+	 * if not the collider is removed from the in-game space and the ball finds the
+	 * direction in which it bounces with method brickLocation(); If the collider
+	 * is a brick there is a probability of booster spawning.
 	 * 
-	 * Also checks if there is a collision between paddle and booster, if so it runs method 
-	 * boosterApply();
+	 * Also checks if there is a collision between paddle and booster, if so it
+	 * runs method boosterApply();
 	 * @author Maksym Loshak
 	 */
 		private void collisionCheck()
@@ -541,21 +547,21 @@ public class BreakoutMain extends GraphicsProgram {
 					{
 						ball.setLocation(ball.getX(), paddle.getY()-ball.getHeight());
 					}
-					SoundClip bounce = new SoundClip("hit.wav");
-					bounce.setVolume(0.1);
-					bounce.play();
 					vy=-vy;
 				}
 				else if(brickLocation!=null)
 				{
 					scoreValue+=10;
+					//if(brickLocation!=null)
 					{
 						if(brickLocation.equals("UP")||brickLocation.equals("DOWN"))
 							vy=-vy;
 						else if(brickLocation.equals("RIGHT")||brickLocation.equals("LEFT"))
 							vx=-vx;
 					}
-					
+					remove(score);
+					score.setLabel("Score: "+scoreValue);
+					add(score, WIDTH-score.getWidth()-10, score.getHeight()-4 );
 					if(lvl>1&&booster==null)
 					{
 						if(boosterChance())
@@ -564,30 +570,8 @@ public class BreakoutMain extends GraphicsProgram {
 							add(booster, collider.getX()+(collider.getWidth()-booster.getWidth())/2, collider.getY()+collider.getHeight()/2);
 						}
 					}
-					if(superBooster)
-					{
-						for(int i=-2; i<3; i++)
-							for(int j=-1; j<3; j++)
-							{
-								GObject superColider = getElementAt(collider.getX()+collider.getWidth()*j, collider.getY()+collider.getHeight()*i);
-								if(superColider!=null&&superColider!=ball&&superColider!=booster&&superColider!=header&&superColider!=collider&&
-										superColider!=heart1&&superColider!=heart2&&superColider!=heart3&&superColider!=score)
-								{
-									remove(superColider);
-									superColider=null;
-									scoreValue+=10;
-								}
-							}
-						superBooster=false;
-					}
 					remove(collider);
 					collider=null;
-					remove(score);
-					score.setLabel("Score: "+scoreValue);
-					add(score, WIDTH-score.getWidth()-10, score.getHeight()-4 );
-					SoundClip bounce = new SoundClip("hit.wav");
-					bounce.setVolume(0.1);
-					bounce.play();
 				}
 			}
 			if(booster!=null)
@@ -617,54 +601,15 @@ public class BreakoutMain extends GraphicsProgram {
 				remove(explanation);
 				explanation=null;
 			}
-			int booster;
 			explanation = new GLabel("");
-			if(lvl==2)
-				booster = rgen.nextInt(1,4);
-			else
-				booster = rgen.nextInt(1,7);
+			int booster = rgen.nextInt(1,6);
 			if(booster==1)
 			{
-				if(PADDLE_WIDTH<100)
-				{
-					if(lvl==2)
-						PADDLE_WIDTH+=10;
-					else
-						PADDLE_WIDTH+=20;
-					explanation.setLabel("Paddle size increased!");
-					explanation.setColor(Color.blue);
-				}
-				else boosterApply();
+				PADDLE_WIDTH+=20;
+				explanation.setLabel("Paddle size increased!");
+				explanation.setColor(Color.blue);
 			}
-			
 			else if(booster==2)
-			{
-				if(BALL_RADIUS<=16)
-				{
-					BALL_RADIUS+=2;  	
-					explanation.setLabel("Ball size increased!");
-					double x = ball.getX();
-					double y = ball.getY();
-					remove(ball);
-					ball=getBall();
-					add(ball, x-2, y-2);
-					explanation.setColor(Color.blue);
-				}
-				else boosterApply();
-			}
-			
-			else if(booster==3)
-			{
-				if(DELAY<=5)
-				{
-					DELAY+=1;
-					explanation.setLabel("Ball speed decrased!");
-					explanation.setColor(Color.blue);
-				}
-				else boosterApply();
-			}
-			
-			else if(booster==5)
 			{
 				if(DELAY>3)
 				{
@@ -674,9 +619,8 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 				else boosterApply();
 			}
-			
 				
-			else if(booster==6)
+			else if(booster==3)
 			{
 				if(PADDLE_WIDTH>40)
 				{
@@ -686,9 +630,18 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 				else boosterApply();
 			}
-			
-			
-			else if(booster==7)
+			else if(booster==4)
+			{
+				BALL_RADIUS+=2;  	
+				explanation.setLabel("Ball size increased!");
+				double x = ball.getX();
+				double y = ball.getY();
+				remove(ball);
+				ball=getBall();
+				add(ball, x-2, y-2);
+				explanation.setColor(Color.blue);
+			}
+			else if(booster==5)
 			{
 				if(BALL_RADIUS>6)
 				{
@@ -703,25 +656,17 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 				else boosterApply();
 			}
+			else if(booster==6)
+			{
+				if(DELAY<5)
+				{
+					DELAY+=1;
+					explanation.setLabel("Ball speed decrased!");
+					explanation.setColor(Color.blue);
+				}
+				else boosterApply();
+			}
 			
-			else if(booster==4)
-			{
-				superBooster=true;
-				explanation.setLabel("SUPER BOOSTER!");
-				explanation.setColor(Color.yellow);
-			}
-			if(booster<5)
-			{
-				SoundClip boost = new SoundClip("booster.wav");
-				boost.setVolume(0.1);
-				boost.play();
-			}
-			else if(booster>4)
-			{
-				SoundClip boost = new SoundClip("negativeBoost.wav");
-				boost.setVolume(0.1);
-				boost.play();
-			}
 			explanation.setFont("Times New Roman-36");
 			timer=0;
 			add(explanation, (getWidth()-explanation.getWidth())/2, 40+explanation.getHeight());
@@ -739,8 +684,12 @@ public class BreakoutMain extends GraphicsProgram {
 			youWin = new GImage("youWin.jpg");
 			add(youWin, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 			pause(1000);
-			restart = new GImage("restart.png");
-			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			/*restart = new GImage("restart.png");
+			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);*/
+			
+				nextLevel = new GImage("nextLevel.png");
+				add(nextLevel, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+130);
+			
 			close = new GImage("close.png");
 			close.setSize(50,50);
 			add(close,APPLICATION_WIDTH-50, 0);
@@ -753,8 +702,12 @@ public class BreakoutMain extends GraphicsProgram {
 			youLose = new GImage("youLose.jpg");
 			add(youLose, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 			pause(1000);
-			restart = new GImage("restart.png");
-			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			/*restart = new GImage("restart.png");
+			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);*/
+			
+				nextLevel = new GImage("nextLevel.png");
+				add(nextLevel, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+130);
+			
 			close = new GImage("close.png");
 			close.setSize(50,50);
 			add(close,APPLICATION_WIDTH-50, 0);
