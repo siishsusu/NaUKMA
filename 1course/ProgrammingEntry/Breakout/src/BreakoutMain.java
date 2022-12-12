@@ -25,10 +25,13 @@ public class BreakoutMain extends GraphicsProgram {
 
 	private static final long serialVersionUID = 1L;
 	
+	
+
 	/** The number of the level played */
 		protected static int lvl;
 		
 		
+
 	/** Shows if the sound is being played */
 		public boolean soundPlaying = false;
 
@@ -49,6 +52,7 @@ public class BreakoutMain extends GraphicsProgram {
 		protected static final int PADDLE_Y_OFFSET = 30;
 
 	/** Number of bricks per row */
+
 		protected static int NBRICKS_PER_ROW = 10;
 
 	/** Number of rows of bricks */
@@ -78,7 +82,7 @@ public class BreakoutMain extends GraphicsProgram {
 		
 	/** Shows if superBoooster is activated */
 		private static boolean superBooster;
-		
+
 	/** An item of GObject paddle (GRect) */
 		protected static GRect paddle;
 		
@@ -107,9 +111,10 @@ public class BreakoutMain extends GraphicsProgram {
 		private static String brickLocation;
 		
 	/** Images of a heart */
-		private static GImage heart1=getHeart();
-		private static GImage heart2=getHeart();
-		private static GImage heart3=getHeart();
+
+		protected static GImage heart1=getHeart();
+		protected static GImage heart2=getHeart();
+		protected static GImage heart3=getHeart();
 		
 	/** Amount of lives */
 		protected static int lives=3;
@@ -135,7 +140,8 @@ public class BreakoutMain extends GraphicsProgram {
 		 * Images used in the game
 		 */
 		protected GImage background, play, quit, level1, level2,
-		level3, back, close, youWin,youLose, restart;
+		level3, back, close, youWin,youLose, restart, nextLevel;
+
 		
 		/**
 	     * If player won
@@ -146,11 +152,13 @@ public class BreakoutMain extends GraphicsProgram {
 	     * If player lose
 	     */
 		public SoundClip whatIfLose = new SoundClip("failing.au");
+		
 	/* Method: run() */
 	/** Runs the BreakoutMain program. */
 		public void startGame() 
 		{
 			setup(); 
+			
 			while(!gameOver())
 			{
 				ballMovement();
@@ -159,7 +167,23 @@ public class BreakoutMain extends GraphicsProgram {
 				pause(DELAY);
 				
 			}
-			//if(gameOver())
+			if(gameOver()){
+				
+				waitForClick();
+				removeAll();
+				screen=3;
+				if(lvl!=3) lvl=lvl++;
+				else if(lvl==3)lvl=1;
+				NBRICKS_PER_ROW = 10;
+				NBRICK_ROWS = 10;
+				scoreValue=0;
+				lives=3;
+				heart1=getHeart();
+				heart2=getHeart();
+				heart3=getHeart();
+				startGame();
+				
+			}
 			}
 	/**
 	 * Sets the size of the console
@@ -197,8 +221,17 @@ public class BreakoutMain extends GraphicsProgram {
 			add(header,0,0);
 			
 		}
+
+		/**
+		 * Boolean that returns is game over or not
+		 * Over if:
+		 * The ball flew down 3 times
+		 * or
+		 * scoreValue==1000
+		 * @author Maksym Loshak
+		 */
 		
-		public boolean gameOver()
+		protected boolean gameOver()
 		{
 			if(ball.getY()>=HEIGHT)
 			{
@@ -250,7 +283,7 @@ public class BreakoutMain extends GraphicsProgram {
 	 * Creates bricks 10x10 (rows x columns) size set in the header.
 	 * @author Maksym Loshak
 	 */
-		private void bricks()
+		protected void bricks()
 		{
 			for(int i=0; i<NBRICK_ROWS; i++)
 			{
@@ -271,7 +304,7 @@ public class BreakoutMain extends GraphicsProgram {
 	 * @author Maksym Loshak
 	 * @return heart
 	 */
-		private static GImage getHeart()
+		protected static GImage getHeart()
 		{
 			GImage heart = new GImage("life.png");
 			heart.scale(0.11);
@@ -288,6 +321,11 @@ public class BreakoutMain extends GraphicsProgram {
 			return heartBW;
 		}
 		
+		/**
+		 * /** Creates a booster 
+	     * @author Maksym Loshak
+	     * @return booster
+	     */	
 		private static GRect getBooster()
 		{
 			GRect booster = new GRect(10, 10);
@@ -519,7 +557,6 @@ public class BreakoutMain extends GraphicsProgram {
 				return "UP";
 			else return null;
 		}
-		
 	/** Checks for collisions of the ball, if the collider id a paddle, ball bounces back, if not
 	 * the collider is removed from the in-game space and the ball finds the direction in which it 
 	 * bounces with method brickLocation(); If the collider is a brick there is a probability of 
@@ -555,7 +592,6 @@ public class BreakoutMain extends GraphicsProgram {
 						else if(brickLocation.equals("RIGHT")||brickLocation.equals("LEFT"))
 							vx=-vx;
 					}
-					
 					if(lvl>1&&booster==null)
 					{
 						if(boosterChance())
@@ -686,8 +722,7 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 				else boosterApply();
 			}
-			
-			
+
 			else if(booster==7)
 			{
 				if(BALL_RADIUS>6)
@@ -703,7 +738,6 @@ public class BreakoutMain extends GraphicsProgram {
 				}
 				else boosterApply();
 			}
-			
 			else if(booster==4)
 			{
 				superBooster=true;
@@ -739,8 +773,11 @@ public class BreakoutMain extends GraphicsProgram {
 			youWin = new GImage("youWin.jpg");
 			add(youWin, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 			pause(1000);
-			restart = new GImage("restart.png");
-			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			/*restart = new GImage("restart.png");
+			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);*/
+			
+				nextLevel = new GImage("nextLevel.png");
+				add(nextLevel, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+130);
 			close = new GImage("close.png");
 			close.setSize(50,50);
 			add(close,APPLICATION_WIDTH-50, 0);
@@ -753,8 +790,11 @@ public class BreakoutMain extends GraphicsProgram {
 			youLose = new GImage("youLose.jpg");
 			add(youLose, APPLICATION_WIDTH/5, APPLICATION_HEIGHT/2-100);
 			pause(1000);
-			restart = new GImage("restart.png");
-			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);
+			/*restart = new GImage("restart.png");
+			add(restart, APPLICATION_WIDTH/2-30, APPLICATION_HEIGHT/2-180);*/
+			
+				nextLevel = new GImage("nextLevel.png");
+				add(nextLevel, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+130);
 			close = new GImage("close.png");
 			close.setSize(50,50);
 			add(close,APPLICATION_WIDTH-50, 0);
@@ -814,3 +854,4 @@ public class BreakoutMain extends GraphicsProgram {
 		*/
 		
 	}
+
