@@ -12,25 +12,30 @@ import acm.graphics.GObject;
 import acm.util.SoundClip;
 
 public class MainPage extends BreakoutMain{
+	
 	/**
      * mouse clicked sound
      */
      public SoundClip click = new SoundClip("clickButton.wav");
      
+	/* Method: run() */
+	/** Runs the BreakoutMain program. 
+	*/
 	public void run(){
+		
 		this.setSize(APPLICATION_WIDTH, APPLICATION_HEIGHT); 
 		screen=1;
-		while(screen!=7){
+		while(screen!=9){
 		background();
 		playQuitButtons();
 		addMouseListeners();
+		
 		while(screen!=3){
 		}
 		startGame();
 		while(screen!=6){
-			
 		}restartGame();
-		}
+	}
 	}
 	
 	/**
@@ -57,14 +62,25 @@ public class MainPage extends BreakoutMain{
 	public void keyPressed(KeyEvent e){
 		if (e.getKeyCode() == KeyEvent.VK_1) {
 			lvl=1;
+			removeAll();
+			screen=3;
 		    }else if (e.getKeyCode() == KeyEvent.VK_2) {
 		    lvl=2;
+		    removeAll();
+			screen=3;
 		    }else if (e.getKeyCode() == KeyEvent.VK_3) {
 		    lvl=3;
+		    removeAll();
+			screen=3;
 			}
-		removeAll();
-		screen=3;
+		
 	}
+	/* 
+	 * screen 1(play\quit)
+	 * screen 2 (quit)
+	 * screen 4(restart\close)
+	 * screen 5(restart\close)
+	 */
 	public void mouseClicked(MouseEvent e){
 		double ClickX= e.getX();
         double ClickY=e.getY();
@@ -77,6 +93,7 @@ public class MainPage extends BreakoutMain{
 	        }else if (collObj == play)  {
 	        	click.setVolume(0.5);
 				click.play();
+				
 				pause(400);
 	        	remove(play);
 	        	remove(quit);
@@ -87,12 +104,7 @@ public class MainPage extends BreakoutMain{
 	        	
 	        }
 		}else if(screen==2){
-			if (collObj == back)  {
-				click.setVolume(0.5);
-				click.play();
-				removeAll();
-				run();
-	        }else if (collObj == close)  {
+			if (collObj == close)  {
 	        	click.setVolume(0.5);
 				click.play();
 	        	System.exit(0);
@@ -103,33 +115,44 @@ public class MainPage extends BreakoutMain{
 				click.play();
 				removeAll();
 				screen=6;
-
 			}else if (collObj == close)  {
 	        	click.setVolume(0.5);
 				click.play();
 	        	System.exit(0);
+	        }else if (collObj == nextLevel)  {
+	        	click.setVolume(0.5);
+				click.play();
+				lvl++;
+				removeAll();
+				screen=3;
 	        }
-
         }else if(screen==5){
         	if (collObj == restart)  {
 				click.setVolume(0.5);
 				click.play();
 				removeAll();
+				
 				screen=6;
-
 			}else if (collObj == close)  {
 	        	click.setVolume(0.5);
 				click.play();
 	        	System.exit(0);
 	        }
-
         }
 	}
+	/**
+	 * Restart game
+	 * @author Vladyslava Rudas
+	 */
 	private void restartGame() {
+		
 		NBRICKS_PER_ROW = 10;
 		NBRICK_ROWS = 10;
 		scoreValue=0;
 		lives=3;
+		heart1=getHeart();
+		heart2=getHeart();
+		heart3=getHeart();
 		run();
 	}
 
@@ -138,9 +161,7 @@ public class MainPage extends BreakoutMain{
 	 * @author Vladyslava Rudas
 	 */
 	private void backQuit() {
-		back = new GImage("back.png");
-		back.setSize(50,50);
-		add(back, 0, 0);
+		
 		close = new GImage("close.png");
 		close.setSize(50,50);
 		add(close,APPLICATION_WIDTH-50, 0);
@@ -157,5 +178,5 @@ public class MainPage extends BreakoutMain{
 		level3 = new GImage("level3.png");
 		add(level3, APPLICATION_WIDTH/3, APPLICATION_HEIGHT/2+100);
 	}
+	
 }
-
